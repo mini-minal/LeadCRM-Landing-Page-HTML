@@ -1321,6 +1321,8 @@ a {
   font-size: 18px;
   font-weight: 400;
   color: var(--secondary-text-color);
+  border: none !important;
+  margin: 0 !important;
 }
 .crmTabs li .nav-link.active {
   color: var(--dark-navy-color);
@@ -1328,22 +1330,18 @@ a {
   font-weight: 600;
 }
 
-.crmTabs li .nav-link.active,
+.crmTabs li .nav-link:active,
 .crmTabs li .nav-link:hover,
-.crmTabs li .nav-link:focus {
-  border: none;
-  outline: none;
+.crmTabs li .nav-link:focus,
+.crmTabs .nav-link:focus-visible {
+  box-shadow: none !important;
+  border: 0 !important;
+  outline: none !important;
 }
 .crmTabs li .nav-link img {
   margin-right: 10px;
 }
 
-.nav-link:focus,
-.nav-link:focus-visible {
-  box-shadow: none;
-  border: none;
-  outline: none;
-}
 /* Tab content animations */
 .tab-content {
   position: relative;

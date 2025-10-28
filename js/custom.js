@@ -60,45 +60,6 @@ $(document).ready(function () {
 });
 
 // Animated underline for tabs Start -----------------------------------------
-function moveTabIndicator() {
-  const activeTab = document.querySelector(".nav-link.active");
-  const tabsContainer = document.querySelector(".crmTabs");
-
-  if (activeTab && tabsContainer) {
-    const tabsRect = tabsContainer.getBoundingClientRect();
-    const activeRect = activeTab.getBoundingClientRect();
-
-    const left = activeRect.left - tabsRect.left;
-    const width = activeRect.width;
-
-    tabsContainer.style.setProperty("--tab-left", `${left}px`);
-    tabsContainer.style.setProperty("--tab-width", `${width}px`);
-
-    const afterElement = window.getComputedStyle(tabsContainer, "::after");
-    tabsContainer.style.setProperty("--current-left", afterElement.getPropertyValue("left"));
-
-    requestAnimationFrame(() => {
-      tabsContainer.style.cssText += `
-            &::after {
-              left: ${left}px;
-              width: ${width}px;
-            }
-          `;
-    });
-  }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  moveTabIndicator();
-
-  const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
-  tabs.forEach((tab) => {
-    tab.addEventListener("shown.bs.tab", moveTabIndicator);
-  });
-
-  window.addEventListener("resize", moveTabIndicator);
-});
-
 document.addEventListener("DOMContentLoaded", function () {
   const tabsContainer = document.querySelector(".crmTabs");
   const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
@@ -109,16 +70,17 @@ document.addEventListener("DOMContentLoaded", function () {
       const tabsRect = tabsContainer.getBoundingClientRect();
       const activeRect = activeTab.getBoundingClientRect();
 
-      const left = activeRect.left - tabsRect.left;
+      const scrollLeft = tabsContainer.scrollLeft || 0;
+      const left = activeRect.left - tabsRect.left + scrollLeft;
       const width = activeRect.width;
 
       const style = document.createElement("style");
       style.textContent = `
-            .crmTabs::after {
-              left: ${left}px !important;
-              width: ${width}px !important;
-            }
-          `;
+        .crmTabs::after {
+          left: ${left}px !important;
+          width: ${width}px !important;
+        }
+      `;
 
       const oldStyle = document.getElementById("tab-indicator-style");
       if (oldStyle) oldStyle.remove();
@@ -131,20 +93,21 @@ document.addEventListener("DOMContentLoaded", function () {
   updateIndicator();
 
   tabs.forEach((tab) => {
-    tab.addEventListener("shown.bs.tab", updateIndicator);
+    tab.addEventListener("shown.bs.tab", function () {
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          this.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+          setTimeout(updateIndicator, 300);
+        }, 100);
+      } else {
+        updateIndicator();
+      }
+    });
   });
 
   window.addEventListener("resize", updateIndicator);
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", function () {
-      setTimeout(() => {
-        if (window.innerWidth <= 768) {
-          this.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        }
-      }, 100);
-    });
-  });
+  tabsContainer.addEventListener("scroll", updateIndicator);
 });
 
 // scroll to top Start -------------------------------------------------------
